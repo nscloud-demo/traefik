@@ -37,7 +37,7 @@ jobs:
 
     - name: Setup Golang toolchain
       if: ${{ matrix.language }} == 'go'
-      uses: actions/setup-go
+      uses: actions/setup-go@v4
       with:
         cache: false
 
