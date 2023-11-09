@@ -25,12 +25,14 @@ jobs:
       - name: Branch name
         run: echo ${GITHUB_REF##*/}
 
-      - name: Build docker experimental image
-        run: docker build -t traefik/traefik:experimental-${GITHUB_REF##*/} -f exp.Dockerfile . --load
-
-      - name: Setup nsc 
-        uses: namespacelabs/nscloud-setup@v0
+      - uses: namespacelabs/nscloud-setup@v0
         id: nsc
 
-      - name: Push to Docker Hub
-        run: docker push ${{ steps.nsc.outputs.registry-address }}/traefik/traefik:experimental-${GITHUB_REF##*/}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: . 
+          file: ./exp.Dockerfile
+          push: true
+          tags: ${{ steps.nsc.outputs.registry-address }}/traefik/traefik:experimental
+          platforms: linux/amd64
