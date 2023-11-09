@@ -35,6 +35,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Setup Golang toolchain
+      if: ${{ matrix.language }} == 'go'
+      uses: actions/setup-go
+      with:
+        cache: false
+
     - name: Setup Golang caches
       if: ${{ matrix.language }} == 'go'
       uses: namespacelabs/nscloud-cache-action@v1
