@@ -5,19 +5,21 @@ on:
     branches:
       - master
       - v*
+  workflow_dispatch: 
 
 jobs:
 
   experimental:
     if: github.repository == 'traefik/traefik'
     name: Build experimental image on branch
-    runs-on: ubuntu-20.04
+    runs-on: 
+      - nscloud-ubuntu-22.04-amd64-4x16-with-cache
+      - nscloud-git-mirror-5gb
 
     steps:
 
-      # https://github.com/marketplace/actions/checkout
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: namespacelabs/nscloud-checkout-action@v0
         with:
           fetch-depth: 0
 
@@ -25,13 +27,11 @@ jobs:
         run: echo ${GITHUB_REF##*/}
 
       - name: Build docker experimental image
-        run: docker build -t traefik/traefik:experimental-${GITHUB_REF##*/} -f exp.Dockerfile .
+        run: docker build -t traefik/traefik:experimental-${GITHUB_REF##*/} -f exp.Dockerfile . --load
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Setup nsc 
+        uses: namespacelabs/nscloud-setup@v0
+        id: nsc
 
       - name: Push to Docker Hub
-        run: docker push traefik/traefik:experimental-${GITHUB_REF##*/}
+        run: docker push ${{ steps.nsc.outputs.registry-address }}/traefik/traefik:experimental-${GITHUB_REF##*/}
